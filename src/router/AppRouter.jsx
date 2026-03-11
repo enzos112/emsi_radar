@@ -9,6 +9,7 @@ import DashboardPage from "../pages/admin/DashboardPage";
 import DashboardClientePage from "../pages/cliente/DashboardClientePage";
 import { useAuthStore } from "../store/authStore";
 import CatalogosPage from "../pages/admin/CatalogosPage";
+import UsuariosPage from "../pages/admin/UsuariosPage";
 
 export default function AppRouter() {
   const { isAuthenticated, user } = useAuthStore();
@@ -56,10 +57,7 @@ export default function AppRouter() {
                   <Route path="catalogos" element={<CatalogosPage />} />
                   <Route path="clientes" element={<ClientesPage />} />
                   <Route path="reportes" element={<ReportesPage />} />
-                  <Route
-                    path="usuarios"
-                    element={<div>Gestión de Usuarios (Próximamente)</div>}
-                  />
+                  <Route path="usuarios" element={<UsuariosPage />} />
                   <Route path="*" element={<Navigate to="dashboard" />} />
                 </Routes>
               </main>
