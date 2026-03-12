@@ -179,7 +179,7 @@ const handleCrearSupervisor = async (e) => {
   try {
     const payload = {
       ...formSup,
-      rol: "CLIENTE",
+      rol: "SUPERVISOR",
       empresaId: supervisorModalData.id
     };
     await axiosInstance.post("/usuarios", payload);

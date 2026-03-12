@@ -7,17 +7,12 @@ export default function ReportesPage() {
   const [reportes, setReportes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-
   const [filtroEstado, setFiltroEstado] = useState("TODOS");
   const [fechaDesde, setFechaDesde] = useState("");
   const [fechaHasta, setFechaHasta] = useState("");
-
   const [paginaActual, setPaginaActual] = useState(0);
   const [totalPaginas, setTotalPaginas] = useState(0);
-
   const [estadisticas, setEstadisticas] = useState({ TOTAL: 0, PENDIENTE: 0, EN_REVISION: 0, SOLUCIONADO: 0 });
-  
-  // Estados para el Modal
   const [reporteSeleccionado, setReporteSeleccionado] = useState(null);
   const [loadingDetalle, setLoadingDetalle] = useState(false);
   const [nuevoEstado, setNuevoEstado] = useState("");

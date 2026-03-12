@@ -18,8 +18,16 @@ export default function LoginClientePage() {
     setLoading(true);
     try {
       const { data } = await axiosInstance.post('/auth/login', form);
-      if (data.success && data.data.rol === 'CLIENTE') { // Validamos que sea cliente
-        setLogin(data.data, data.data.accessToken);
+      if (data.success && data.data.rol === 'SUPERVISOR') {       
+        setLogin({
+          nombre: data.data.nombre,
+          email: data.data.email,
+          rol: data.data.rol,
+          empresaId: data.data.empresaId,
+          empresaNombre: data.data.empresaNombre,
+          empresaToken: data.data.empresaToken
+        }, data.data.accessToken);
+        
         toast.success(`Bienvenido a ${data.data.empresaNombre}`);
         navigate('/cliente/dashboard'); 
       } else {

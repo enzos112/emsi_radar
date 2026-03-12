@@ -18,25 +18,24 @@ export default function LoginPage() {
     setLoading(true);
     try {
       const { data } = await axiosInstance.post('/auth/login', form);
-      if (data.success) {
+      
+      if (data.success && data.data.rol === 'ADMIN') {
         setLogin(
           { 
             nombre: data.data.nombre, 
             email: data.data.email, 
             rol: data.data.rol,
-            empresaNombre: data.data.empresaNombre 
+            empresaId: data.data.empresaId,
+            empresaNombre: data.data.empresaNombre,
+            empresaToken: data.data.empresaToken 
           }, 
           data.data.accessToken
         );
         
-        toast.success("¡Bienvenido a RADAR EMSI!");
-        
-        // Redirección dinámica por rol
-        if (data.data.rol === 'ADMIN') {
-          navigate('/admin/dashboard'); 
-        } else {
-          navigate('/cliente/dashboard'); 
-        }
+        toast.success("¡Bienvenido al Sistema Interno RADAR!");
+        navigate('/admin/dashboard'); 
+      } else if (data.success && data.data.rol !== 'ADMIN') {
+        toast.error("Acceso denegado. Utiliza el portal de clientes para ingresar.");
       }
     } catch (error) {
       toast.error(error.response?.data?.message || "Error al iniciar sesión");
