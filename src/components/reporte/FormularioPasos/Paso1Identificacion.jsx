@@ -2,18 +2,26 @@ import InputField from "../../ui/InputField";
 import SelectField from "../../ui/SelectField";
 import { useMemo } from "react";
 
-const departamentosFalsos = [
-  { value: "dep_1", label: "Operaciones" },
-  { value: "dep_2", label: "SSOMA" },
-];
-
 const turnoOptions = [
   { value: "MANANA", label: "Mañana" },
   { value: "TARDE", label: "Tarde" },
   { value: "NOCHE", label: "Noche" },
 ];
 
-export default function Paso1Identificacion({ formData, onChange }) {
+export default function Paso1Identificacion({
+  formData,
+  onChange,
+  departamentos = [],
+}) {
+  // Convertimos el arreglo de strings que manda el backend
+  // al formato de opciones que entiende tu SelectField
+  const opcionesDepartamentos = useMemo(() => {
+    return departamentos.map((dep) => ({
+      value: dep,
+      label: dep,
+    }));
+  }, [departamentos]);
+
   const { maxDate, minDate } = useMemo(() => {
     const today = new Date();
     const localToday = new Date(
@@ -28,18 +36,19 @@ export default function Paso1Identificacion({ formData, onChange }) {
 
   const handleNameChange = (e) => {
     const value = e.target.value;
-    const regex = /^[a-zA-ZñÑáéíóúÁÉÍÓÚ\s]*$/; // Solo letras y espacios
+    const regex = /^[a-zA-ZñÑáéíóúÁÉÍÓÚ\s]*$/;
     if (regex.test(value) || value === "") onChange("nombreReportante", value);
   };
 
   return (
     <div className="space-y-4">
       <SelectField
-        label="Departamento"
+        label="Departamento / Área"
         required
-        options={departamentosFalsos}
-        value={formData.departamentoId || ""}
-        onChange={(e) => onChange("departamentoId", e.target.value)}
+        // Aquí pasamos las opciones procesadas
+        options={opcionesDepartamentos}
+        value={formData.area || ""}
+        onChange={(e) => onChange("area", e.target.value)}
       />
       <InputField
         label="Nombres y Apellidos (Opcional)"
