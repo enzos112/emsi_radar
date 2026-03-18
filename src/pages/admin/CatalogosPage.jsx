@@ -7,13 +7,19 @@ import {
   Trash2,
   X,
   AlertTriangle,
+  ChevronLeft,
+  ChevronRight, // <-- Importamos los íconos para la paginación
 } from "lucide-react";
 import toast from "react-hot-toast";
 
 export default function CatalogosPage() {
   // 1. Estados de la interfaz
-  const [activeTab, setActiveTab] = useState("causas"); // "causas" o "tipos"
+  const [activeTab, setActiveTab] = useState("causas");
   const [loading, setLoading] = useState(true);
+
+  // --- NUEVOS ESTADOS PARA PAGINACIÓN ---
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5; // Aquí definimos que sean 5 por página
 
   // 2. Estados de datos
   const [causas, setCausas] = useState([]);
@@ -26,13 +32,19 @@ export default function CatalogosPage() {
 
   const [formData, setFormData] = useState({
     nombre: "",
-    descripcion: "", // Solo se usa en Tipos
+    descripcion: "",
   });
 
   // Cargar datos al montar el componente
   useEffect(() => {
     cargarCatalogos();
   }, []);
+
+  // --- RESETEAR PÁGINA AL CAMBIAR DE PESTAÑA ---
+  // Si estoy en la pág 3 de Causas y paso a Tipos, me regresa a la pág 1 automáticamente
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab]);
 
   const cargarCatalogos = async () => {
     setLoading(true);
@@ -50,7 +62,6 @@ export default function CatalogosPage() {
     }
   };
 
-  // Preparar el modal para crear o editar
   const abrirModal = (item = null) => {
     if (item) {
       setEditingId(item.id);
@@ -71,7 +82,6 @@ export default function CatalogosPage() {
     setFormData({ nombre: "", descripcion: "" });
   };
 
-  // Función Mágica: Guarda Causas o Tipos dependiendo de la pestaña activa
   const handleSave = async (e) => {
     e.preventDefault();
     if (!formData.nombre.trim()) return toast.error("El nombre es obligatorio");
@@ -91,14 +101,13 @@ export default function CatalogosPage() {
 
       toast.success("Guardado correctamente", { id: loadingToast });
       cerrarModal();
-      cargarCatalogos(); // Recargamos la tabla
+      cargarCatalogos();
     } catch (error) {
       const msj = error.response?.data?.message || "Error al guardar";
       toast.error(msj, { id: loadingToast });
     }
   };
 
-  // Función para desactivar (Soft Delete)
   const handleEliminar = async () => {
     const loadingToast = toast.loading("Eliminando...");
     try {
@@ -109,13 +118,22 @@ export default function CatalogosPage() {
       toast.success("Eliminado correctamente", { id: loadingToast });
       setItemAEliminar(null);
       cargarCatalogos();
+
+      // Si eliminamos el último elemento de una página, regresamos a la anterior
+      if (currentItems.length === 1 && currentPage > 1) {
+        setCurrentPage(currentPage - 1);
+      }
     } catch (error) {
       toast.error("Error al eliminar", { id: loadingToast });
     }
   };
 
-  // Datos actuales a mostrar en la tabla según la pestaña
+  // --- LÓGICA MATEMÁTICA DE LA PAGINACIÓN ---
   const datosTabla = activeTab === "causas" ? causas : tipos;
+  const totalPages = Math.ceil(datosTabla.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  // Cortamos el arreglo general para sacar solo los 5 que tocan en esta página
+  const currentItems = datosTabla.slice(startIndex, startIndex + itemsPerPage);
 
   return (
     <div className="p-8 max-w-5xl mx-auto bg-slate-50 min-h-screen font-sans text-slate-900">
@@ -184,14 +202,15 @@ export default function CatalogosPage() {
                   Cargando catálogos...
                 </td>
               </tr>
-            ) : datosTabla.length === 0 ? (
+            ) : currentItems.length === 0 ? (
               <tr>
                 <td colSpan="4" className="p-10 text-center text-slate-400">
-                  No hay registros activos
+                  No hay registros activos en esta página
                 </td>
               </tr>
             ) : (
-              datosTabla.map((item) => (
+              // AQUÍ DIBUJAMOS 'currentItems' EN LUGAR DE 'datosTabla'
+              currentItems.map((item) => (
                 <tr
                   key={item.id}
                   className="hover:bg-slate-50/80 transition-colors group"
@@ -228,6 +247,31 @@ export default function CatalogosPage() {
         </table>
       </div>
 
+      {/* --- CONTROLES DE PAGINACIÓN --- */}
+      {totalPages > 1 && (
+        <div className="flex justify-between items-center mt-6 bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+          <button
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+            className="flex items-center gap-1 p-2 px-4 rounded-xl font-bold text-sm text-slate-500 hover:bg-slate-100 disabled:opacity-40 transition-colors"
+          >
+            <ChevronLeft size={18} /> Anterior
+          </button>
+
+          <span className="text-sm font-bold text-slate-600 bg-slate-50 px-4 py-2 rounded-lg border border-slate-200">
+            Página {currentPage} de {totalPages}
+          </span>
+
+          <button
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
+            className="flex items-center gap-1 p-2 px-4 rounded-xl font-bold text-sm text-slate-500 hover:bg-slate-100 disabled:opacity-40 transition-colors"
+          >
+            Siguiente <ChevronRight size={18} />
+          </button>
+        </div>
+      )}
+
       {/* Modal: Formulario Dinámico */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex justify-center items-center z-50 p-4">
@@ -261,7 +305,6 @@ export default function CatalogosPage() {
                 />
               </div>
 
-              {/* El campo descripción SOLO aparece si estamos en la pestaña Tipos */}
               {activeTab === "tipos" && (
                 <div>
                   <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">
