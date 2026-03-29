@@ -612,16 +612,37 @@ export default function ReportesPage() {
                     
                     {/* PASO 1 y 2: DATOS BÁSICOS (Tarjetas Rápidas) */}
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                      <div className="bg-slate-50 p-5 rounded-[1.5rem] border border-slate-100 shadow-sm">
-                        <div className="flex items-center gap-2 text-slate-400 mb-2">
-                          <Calendar size={14} />{" "}
-                          <span className="text-[10px] font-bold uppercase tracking-widest">
-                            Fecha
-                          </span>
+                      {/* Tarjeta de Fechas (Ocurrido vs Registro) */}
+                      <div className="bg-slate-50 p-5 rounded-[1.5rem] border border-slate-100 shadow-sm flex flex-col justify-between">
+                        <div>
+                          <div className="flex items-center gap-2 text-slate-400 mb-1">
+                            <Calendar size={14} />{" "}
+                            <span className="text-[10px] font-bold uppercase tracking-widest">
+                              Fecha Incidente
+                            </span>
+                          </div>
+                          <p className="font-bold text-slate-700 text-base">
+                            {reporteSeleccionado.fechaOcurrido}
+                          </p>
                         </div>
-                        <p className="font-bold text-slate-700 text-lg">
-                          {reporteSeleccionado.fechaOcurrido}
-                        </p>
+                        
+                        {/* AQUI INSERTAMOS LA FECHA DE REGISTRO */}
+                        <div className="mt-3 pt-3 border-t border-slate-200 border-dashed">
+                          <span className="text-[9px] font-bold uppercase tracking-widest text-blue-500">
+                            Registrado en Sistema
+                          </span>
+                          <p className="font-semibold text-slate-600 text-xs mt-0.5">
+                            {reporteSeleccionado?.createdAt 
+                              ? new Date(reporteSeleccionado.createdAt).toLocaleString("es-PE", {
+                                  year: "numeric",
+                                  month: "short",
+                                  day: "numeric",
+                                  hour: "2-digit",
+                                  minute: "2-digit"
+                                }) 
+                              : "N/A"}
+                          </p>
+                        </div>
                       </div>
                       <div className="bg-slate-50 p-5 rounded-[1.5rem] border border-slate-100 shadow-sm">
                         <div className="flex items-center gap-2 text-slate-400 mb-2">
